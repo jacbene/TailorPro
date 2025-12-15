@@ -1,0 +1,12 @@
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore node/npm stuff if you add tooling later
+node_modules/
+npm-debug.log
+yarn.lock
+
+# Ignore ZIP and JSON exports from app usage
+*.zip
+*.json

@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ✅ DONNÉES PUBLIQUES - Lecture ouverte
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if false; // Seul l'admin peut écrire via console
+    }
+
+    // ✅ UTILISATEURS - Accès propriétaire strict
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // ✅ PROFIL utilisateur
+      match /profile/{document} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // ✅ COLLECTIONS MÉTIER
+      match /creations/{creationId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      match /clients/{clientId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      match /orders/{orderId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        
+        // Sous-collection des paiements
+        match /payments/{paymentId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+      
+      // ✅ STATISTIQUES business
+      match /stats/{document} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // ✅ PARAMÈTRES utilisateur
+      match /settings/{document} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // ✅ NOTES personnelles
+      match /notes/{noteId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // ✅ TÂCHES personnelles
+      match /tasks/{taskId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // ✅ COLLECTIONS metadata
+      match /collections/{document} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // ✅ TOUTES les autres sous-collections (catch-all sécurisé)
+      match /{collection}/{document} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // ✅ FALLBACK - Tout le reste est BLOQUÉ
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

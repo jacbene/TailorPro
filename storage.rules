@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Les images sont stockées dans un dossier 'images' avec un sous-dossier par utilisateur.
+    // Exemple: /images/{userId}/creation-image-abc.jpg
+    match /images/{userId}/{allPaths=**} {
+      // Seul l'utilisateur propriétaire du dossier (dont l'UID correspond) 
+      // peut lire et écrire des fichiers dans ce dossier.
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}

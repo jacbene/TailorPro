@@ -1,0 +1,19 @@
+{
+    "name": "tailorpro-app",
+    "version": "10.0.0",
+    "description": "Professional fashion business management PWA",
+    "scripts": {
+        "start": "firebase serve",
+        "generate-icons": "node generate-icons.js",
+        "build": "node generate-icons.js",
+        "migrate": "node migrate-data.js",
+        "backup": "node backup-data.js"
+    },
+    "devDependencies": {
+        "firebase-admin": "^13.6.0",
+        "sharp": "^0.34.5"
+    },
+    "dependencies": {
+        "firebase": "^12.6.0"
+    }
+}

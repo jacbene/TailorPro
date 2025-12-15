@@ -1,0 +1,92 @@
+
+/* ===== NOUVELLE IDENTITÉ VISUELLE TAILORPRO ===== */
+
+:root {
+  --primary-blue: #2563eb;
+  --primary-purple: #7c3aed;
+  --success-green: #059669;
+  --professional-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  --light-bg: #f8fafc;
+  --text-dark: #1e293b;
+}
+
+/* Header et navigation */
+header {
+  background: var(--professional-gradient);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  font-size: 1.75rem;
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-bottom: 3px solid white;
+}
+
+/* Cartes et boutons */
+.card {
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.btn-success {
+  background: var(--success-green);
+}
+
+.btn-info {
+  background: var(--primary-purple);
+}
+
+/* Badges et indicateurs */
+.currency-badge {
+  background: var(--primary-blue);
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+}
+
+.stat-card {
+  background: var(--professional-gradient);
+  color: white;
+}
+
+/* Section Cloud */
+.cloud-status.cloud-connected {
+  color: var(--success-green);
+}
+
+.cloud-status.cloud-disconnected {
+  color: #dc2626;
+}
+
+.install-promo {
+  border-left: 4px solid var(--primary-blue);
+  background: var(--light-bg);
+}

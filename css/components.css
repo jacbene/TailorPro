@@ -1,0 +1,398 @@
+/* components.css - STYLES POUR LES COMPOSANTS AVANCÉS */
+
+/* Skeleton Loaders */
+.skeleton-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-image {
+    width: 100%;
+    height: 200px;
+    background: #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-title {
+    width: 70%;
+    height: 16px;
+}
+
+.skeleton-text {
+    width: 90%;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+.skeleton-table {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.skeleton-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.skeleton-cell {
+    flex: 1;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+.skeleton-cell.short {
+    flex: 0.5;
+}
+
+.skeleton-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.skeleton-stat {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.skeleton-label {
+    height: 14px;
+    background: #e9ecef;
+    border-radius: 7px;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-number {
+    height: 24px;
+    background: #e9ecef;
+    border-radius: 12px;
+    width: 60%;
+    margin: 0 auto;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Modal de Confirmation Avancé */
+.confirm-modal {
+    max-width: 400px;
+}
+
+.confirm-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1.5rem 0.5rem;
+}
+
+.confirm-header.warning {
+    color: #e67e22;
+}
+
+.confirm-header.danger {
+    color: #e74c3c;
+}
+
+.confirm-header.info {
+    color: #3498db;
+}
+
+.confirm-icon {
+    font-size: 1.5rem;
+}
+
+.confirm-body {
+    padding: 1rem 1.5rem;
+}
+
+.confirm-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+.confirm-btn.warning {
+    background: #e67e22;
+}
+
+.confirm-btn.danger {
+    background: #e74c3c;
+}
+
+.confirm-btn.info {
+    background: #3498db;
+}
+
+/* File Uploader */
+.file-uploader {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.file-uploader:hover {
+    border-color: #8a4fff;
+}
+
+.upload-area.dragover {
+    border-color: #8a4fff;
+    background: #f8f9ff;
+}
+
+.upload-placeholder .upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.browse-link {
+    color: #8a4fff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.upload-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.file-preview {
+    position: relative;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.document-preview .file-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.remove-file {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-progress {
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #8a4fff;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    display: block;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+/* Searchable Select */
+.searchable-select {
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+    padding: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.dropdown-item:hover {
+    background: #f8f9fa;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+/* Toast Notifications Avancées */
+.toast {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    min-width: 300px;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-progress {
+    height: 3px;
+    background: #8a4fff;
+    width: 100%;
+    transform-origin: left;
+}
+
+@keyframes progress {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+.toast-success {
+    border-left: 4px solid #27ae60;
+}
+
+.toast-error {
+    border-left: 4px solid #e74c3c;
+}
+
+.toast-warning {
+    border-left: 4px solid #e67e22;
+}
+
+.toast-info {
+    border-left: 4px solid #3498db;
+}
+
+/* Animations */
+@keyframes toastOut {
+    from { 
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to { 
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Responsive Design pour Composants */
+@media (max-width: 768px) {
+    .confirm-modal {
+        width: 90%;
+        margin: 10% auto;
+    }
+    
+    .confirm-footer {
+        flex-direction: column;
+    }
+    
+    .file-uploader {
+        padding: 1rem;
+    }
+    
+    .upload-preview {
+        grid-template-columns: 1fr;
+    }
+    
+    .toast {
+        min-width: auto;
+        width: calc(100vw - 40px);
+    }
+}
+

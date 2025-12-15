@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TailorPro - Gestion pour Couturiers</title>
+    <meta name="description" content="Application de gestion pour couturiers au Cameroun, renommée TailorPro.">
+    <meta name="theme-color" content="#8a4fff">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/android-icon-192x192.png">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css">
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+    
+    <!-- Styles d'optimisation -->
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/components.css">
+
+<!-- Scripts de test et optimisation -->
+<script src="js/components.js"></script>
+<script src="js/tests.js"></script>
+</head>
+<body>
+
+    <!-- ==== MODALE DE CONSENTEMENT COOKIES RGPD ==== -->
+<!-- ==== MODALE D'AUTHENTIFICATION ==== -->
+<div id="auth-modal" class="modal" style="display: none;">
+    <div class="modal-content auth-modal-content" style="heigth:100%;">
+        <span class="close-modal" style="color: red;" onclick="app.hideAuthModal()">&times;</span>
+        
+        <div class="logo-container" style="text-align: center; margin-bottom: 2rem;">
+            <img src="icons/icon.svg" alt="TailorPro Logo" class="logo" width="80">
+            <h1 style="color: #8a4fff; margin: 0.5rem 0;">TailorPro</h1>
+            <p style="color: #666; margin: 0;">Gestion Simple pour Couturiers</p>
+        </div>
+        
+        <!-- Vue FirebaseUI (affichée par défaut) -->
+        <div id="firebaseui-view" class="auth-view">
+            <div id="firebaseui-auth-container"></div>
+            
+            <div class="auth-separator">
+                <span>Ou</span>
+            </div>
+            
+            <div style="text-align: center;">
+                <button id="show-native-auth-btn" class="btn-secondary" style="width: 100%; color: red;">
+                    📧 Utiliser email/mot de passe
+                </button>
+            </div>
+        </div>
+        
+        <!-- Vue Authentification Native (cachée par défaut) -->
+        <div id="native-auth-view" class="auth-view" style="display: none;">
+            <!-- Vue Connexion -->
+            <div id="login-view">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">Connexion</h3>
+                <form id="login-form">
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="Adresse email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" placeholder="Mot de passe" required>
+                    </div>
+                    <button type="submit" id="login-btn" class="btn-primary" style="width: 100%;">
+                        Se connecter
+                    </button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" id="show-register-link">Créer un compte</a>
+                    <a href="#" id="show-reset-link">Mot de passe oublié?</a>
+                </div>
+            </div>
+            
+            <!-- Vue Inscription -->
+            <div id="register-view" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">Inscription</h3>
+                <form id="register-form">
+                    <div class="form-group">
+                        <input type="email" id="register-email" placeholder="Adresse email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="register-password" placeholder="Mot de passe (6 caractères minimum)" required>
+                    </div>
+                    <button type="submit" id="register-btn" class="btn-primary" style="width: 100%;">
+                        S'inscrire
+                    </button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" id="back-to-login-link">Déjà un compte? Se connecter</a>
+                </div>
+            </div>
+            
+            <!-- Vue Réinitialisation -->
+            <div id="reset-view" style="display: none;">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">Réinitialisation</h3>
+                <form id="reset-form">
+                    <div class="form-group">
+                        <input type="email" id="reset-email" placeholder="Adresse email" required>
+                    </div>
+                    <button type="submit" id="reset-btn" class="btn-primary" style="width: 100%;">
+                        Envoyer le lien de réinitialisation
+                    </button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" id="back-to-login-from-reset">Retour à la connexion</a>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1rem;">
+                <button id="back-to-firebaseui-btn" class="btn-secondary" style="width: 100%; color: blue">
+                    🔄 Revenir à la connexion rapide
+                </button>
+            </div>
+        </div>
+        
+        <!-- Messages d'état -->
+        <div id="auth-message" class="auth-message"></div>
+        
+        <!-- Vue de chargement -->
+        <div id="auth-loading" style="display: none; text-align: center;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 1rem;">Connexion en cours...</p>
+        </div>
+    </div>
+</div>
+
+    <!-- ==== APPLICATION PRINCIPALE ==== -->
+    <div id="app-container">
+        <header>
+            <div class="header-content" style="text-align:center">
+                <div class="logo">
+                    <img src="icons/icon.svg" alt="TailorPro" width="100%">
+                    <h1>TailorPro Business Management</h1>
+                    <p>Gestion Simple pour Couturiers</p>
+                </div>
+                <div id="user-info" class="user-info">
+                    <span></span>
+                    <button onclick="app.showAuthModal()" class="btn-primary">Se connecter</button>
+                </div>
+                
+                <div id="business-collections-status"> </div>
+                
+              <div id="install-prompt" class="install-prompt" style="display: none;">
+                  <div class="install-content">
+                      <span class="close-install-prompt" onclick="dismissInstallPrompt()">&times;</span>
+                      <h3>📱 Installer l'Application</h3>
+                      <p>Installez l'application pour une expérience optimale et l'accès hors ligne.</p>
+                      <div class="install-actions">
+                          <button class="btn-primary install-btn" onclick="installApp()">
+                              <span class="btn-icon">📱</span> Installer
+                          </button>
+                          <button class="btn-secondary" onclick="dismissInstallPrompt()">
+                              Plus tard
+                          </button>
+                      </div>
+                      <div class="install-timer">
+                          Disparaît dans <span id="install-timer">25</span>s
+                      </div>
+                  </div>
+              </div>
+            </div>
+        </header>
+
+        <main>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-active" data-section="dashboard">📊 Tableau de bord</a></li>
+                    <li><a href="#" data-section="clients">👥 Clients</a></li>
+                    <li><a href="#" data-section="creations">👗 Créations</a></li>
+                    <li><a href="#" data-section="orders">✂️ Commandes</a></li>
+                    <li><a href="#" data-section="measurements">📏 Mesures</a></li>
+                    <li><a href="#" data-section="gallery">🖼️ Galerie</a></li>
+                    <li><a href="#" data-section="finances">💰 Finances</a></li>
+                    <li><a href="#" data-section="settings">⚙️ Paramètres</a></li>
+                </ul>
+            </nav>
+
+            <section id="main-content">
+                <!-- === CONTENU PUBLIC (visible par défaut) === -->
+                <div id="public-content" class="public-section">
+                    
+                </div>
+
+                <!-- === SECTIONS PREMIUM (cachées par défaut) === -->
+                <div id="premium-sections" class="premium-section" style="display: none;">
+                    
+                    <!-- Tableau de bord premium -->
+                    <div id="dashboard-section" class="content-section active">
+                        <div class="section-header">
+                            <h2 class="section-title">Tableau de Bord</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                        </div>
+                        
+                        <div class="dashboard-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Clients Actifs</div>
+                                <div class="stat-number" id="clients-count">0</div>
+                                <div class="stat-trend">Collection Clients</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Commandes en Cours</div>
+                                <div class="stat-number" id="orders-count">0</div>
+                                <div class="stat-trend">Collection Commandes</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Revenus du Mois</div>
+                                <div class="stat-number" id="month-revenue">0 FCFA</div>
+                                <div class="stat-trend">Données financières</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Montants dus</div>
+                                <div class="stat-number" id="amounts-due">0 FCFA</div>
+                                <div class="stat-trend">À recouvrer</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Commandes Récentes</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>Création</th>
+                                            <th>Montant</th>
+                                            <th>Payé</th>
+                                            <th>Reste</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-orders">
+                                        <tr>
+                                            <td colspan="6" class="text-center empty-state">
+                                                <div class="premium-placeholder">
+                                                    <p>Aucune commande récente</p>
+                                                    <button onclick="app.showSection('orders')" class="btn-secondary">
+                                                        Créer votre première commande
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gestion des Clients premium -->
+                    <div id="clients-section" class="content-section" style="width:100%;">
+                        <div class="section-header">
+                            <h2 class="section-title">Gestion des Clients</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                            <button class="btn btn-primary" onclick="openModal('client')">
+                                + Nouveau Client
+                            </button>
+                        </div>
+                        <div class="card">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Prénom</th>
+                                            <th>Téléphone</th>
+                                            <th>Email</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="clients-list">
+                                        <tr>
+                                            <td colspan="5" class="text-center empty-state">
+                                                <div class="premium-placeholder">
+                                                    <p>Aucun client enregistré</p>
+                                                    <button onclick="modals.openModal('client')" class="btn-secondary">
+                                                        Ajouter votre premier client
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gestion des Créations premium -->
+                    <div id="creations-section" class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Gestion des Créations</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                            <button class="btn btn-primary" onclick="openModal('creation')">
+                                + Nouvelle Création
+                            </button>
+                        </div>
+                        <div class="card">
+                            <div id="creations-grid" class="creations-grid">
+                                <div class="premium-placeholder">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gestion des Commandes premium -->
+                    <div id="orders-section" class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Gestion des Commandes</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                            <button class="btn btn-primary" onclick="openModal('order')">
+                                + Nouvelle Commande
+                            </button>
+                        </div>
+                        <div class="card">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>Création</th>
+                                            <th>Date</th>
+                                            <th>Montant</th>
+                                            <th>Payé</th>
+                                            <th>Reste</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orders-list">
+                                        <tr>
+                                            <td colspan="8" class="text-center empty-state">
+                                                <div class="premium-placeholder">
+                                                    <p>Aucune commande enregistrée</p>
+                                                    <button onclick="openModal('order')" class="btn-secondary">
+                                                        Créer votre première commande
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sections placeholder pour les autres onglets premium -->
+                    <div id="measurements-section" class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Gestion des Mesures</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                        </div>
+                        <div class="premium-placeholder">
+                            <h3>📏 Module de mesures</h3>
+                            <p>Enregistrez et gérez les mesures de vos clients</p>
+                            <button onclick="app.showAuthPrompt('accéder au module de mesures')" class="btn-primary">
+                                Accéder aux mesures
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="gallery-section" class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Galerie des Créations</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                        </div>
+                        <div class="premium-placeholder">
+                            <h3>🖼️ Votre galerie de créations</h3>
+                            <p>Montrez vos plus belles réalisations</p>                            <button onclick="app.showAuthPrompt('accéder à la galerie')" class="btn-primary">
+                                Gérer la galerie
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="finances-section" class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Gestion Financière</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                        </div>
+                        <div class="premium-placeholder">
+                            <h3>💰 Vos finances</h3>
+                            <p>Suivez vos revenus, dépenses et bénéfices</p>
+                            <button onclick="app.showAuthPrompt('accéder aux données financières')" class="btn-primary">
+                                Voir les finances
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="settings-section" class="content-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Paramètres</h2>
+                            <div class="premium-badge">⭐ Premium</div>
+                        </div>
+                        <div class="card">
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <h4>📊 Collections Métier</h4>
+                                    <p>Statut de vos collections de données</p>
+                                    <div id="collections-status-panel">
+                                        <div class="collection-status">
+                                            <span class="status-indicator"></span>
+                                            <span>Collection Clients</span>
+                                            <span class="status-badge status-pending">En attente</span>
+                                        </div>
+                                        <div class="collection-status">
+                                            <span class="status-indicator"></span>
+                                            <span>Collection Créations</span>
+                                            <span class="status-badge status-pending">En attente</span>
+                                        </div>
+                                        <div class="collection-status">
+                                            <span class="status-indicator"></span>
+                                            <span>Collection Commandes</span>
+                                            <span class="status-badge status-pending">En attente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="setting-card">
+                                    <h4>☁️ Synchronisation Cloud</h4>
+                                    <p>Statut de la connexion et sauvegarde</p>
+                                    <div id="cloud-status" class="cloud-status cloud-disconnected">
+                                        <span class="cloud-icon">☁️</span>
+                                        <span id="cloud-status-text">Déconnecté</span>
+                                    </div>
+                                    <div id="backup-info" class="backup-info">
+                                        Dernier snapshot: Jamais
+                                    </div>
+                                </div>
+
+                                <!-- Section gestion des cookies dans les paramètres -->
+                                <div class="setting-card">
+                                    <h4>🍪 Gestion des Cookies</h4>
+                                    <p>Contrôlez vos préférences de confidentialité</p>
+                                    <div class="cookie-settings-panel">
+                                        <div class="cookie-setting-item">
+                                            <span>Cookies essentiels</span>
+                                            <span class="cookie-status">Toujours activés</span>
+                                        </div>
+                                        <div class="cookie-setting-item">
+                                            <span>Cookies analytiques</span>
+                                            <span id="analytics-status" class="cookie-status">En attente</span>
+                                        </div>
+                                        <div class="cookie-setting-item">
+                                            <span>Cookies marketing</span>
+                                            <span id="marketing-status" class="cookie-status">En attente</span>
+                                        </div>
+                                        <button onclick="app.showCookieModal()" class="btn-secondary" style="margin-top: 10px;">
+                                            Modifier les préférences
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modale d'image en plein écran -->
+        
+        <!-- Containers pour modales et notifications -->
+        <!-- Containers pour modales et notifications -->
+<div id="modal-container">
+    
+    <!-- Modale pour les créations -->
+    <div id="creation-modal" class="modal" style="display: none; ">
+        <div class="modal-content">
+            <span class="close-modal" style="color:red; width:20px;" onclick="closeModal('creation')">&times;</span>
+            <h3 style="color:blue; text-align:center;">Nouvelle Création</h3>
+            <form id="creation-form">
+                <input type="hidden" id="creation-id">
+                <div class="form-group">
+                    <label for="creation-name">Nom de la création *</label>
+                    <input type="text" id="creation-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="creation-description">Description</label>
+                    <textarea id="creation-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="creation-category">Catégorie</label>
+                    <input type="text" id="creation-category">
+                </div>
+                <div class="cost-grid">
+                    <div class="form-group">
+                        <label for="creation-base-cost">Coût de base (FCFA)</label>
+                        <input type="number" id="creation-base-cost" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="creation-materials-cost">Coût des matériaux (FCFA)</label>
+                        <input type="number" id="creation-materials-cost" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="creation-labor-cost">Main d'œuvre (FCFA)</label>
+                        <input type="number" id="creation-labor-cost" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Coût total: <span id="creation-total-cost">0</span> FCFA</label>
+                </div>
+                <div class="form-group">
+                    <label for="creation-image">Image</label>
+                    <input type="file" id="creation-image" accept="image/*" onchange="handleImageUpload(event)">
+                    <div id="creation-image-preview" class="image-preview"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('creation')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale pour les clients -->
+    <div id="client-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('client')">&times;</span>
+            <h3 style="color:blue; text-align:center;">Nouveau Client</h3>
+            <form id="client-form">
+                <input type="hidden" id="client-id">
+                <div class="form-group">
+                    <label for="client-firstname">Prénom *</label>
+                    <input type="text" id="client-firstname" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-lastname">Nom *</label>
+                    <input type="text" id="client-lastname" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-phone">Téléphone</label>
+                    <input type="tel" id="client-phone">
+                </div>
+                <div class="form-group">
+                    <label for="client-email">Email</label>
+                    <input type="email" id="client-email">
+                </div>
+                <div class="form-group">
+                    <label for="client-address">Adresse</label>
+                    <textarea id="client-address" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="client-notes">Notes</label>
+                    <textarea id="client-notes" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('client')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale pour les commandes -->
+    <div id="order-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('order')">&times;</span>
+            <h3>Nouvelle Commande</h3>
+            <form id="order-form">
+                <input type="hidden" id="order-id">
+                <div class="form-group">
+                    <label for="order-client">Client *</label>
+                    <select id="order-client" required>
+                        <option value="">Sélectionner un client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-creation">Création *</label>
+                    <select id="order-creation" required>
+                        <option value="">Sélectionner une création</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-amount">Montant total (FCFA) *</label>
+                    <input type="number" id="order-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="order-paid">Montant déjà payé (FCFA)</label>
+                    <input type="number" id="order-paid" step="0.01" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Reste à payer: <span id="order-remaining">0</span> FCFA</label>
+                </div>
+                <div class="form-group">
+                    <label for="order-status">Statut</label>
+                    <select id="order-status">
+                        <option value="pending">En attente</option>
+                        <option value="in_progress">En cours</option>
+                        <option value="completed">Terminée</option>
+                        <option value="delivered">Livrée</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-priority">Priorité</label>
+                    <select id="order-priority">
+                        <option value="low">Basse</option>
+                        <option value="medium" selected>Moyenne</option>
+                        <option value="high">Haute</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-due-date">Date d'échéance</label>
+                    <input type="date" id="order-due-date">
+                </div>
+                <div class="form-group">
+                    <label for="order-notes">Notes</label>
+                    <textarea id="order-notes" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('order')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale pour les paiements -->
+    <div id="payment-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('payment')">&times;</span>
+            <h3>Enregistrer un Paiement</h3>
+            <form id="payment-form">
+                <input type="hidden" id="payment-order-id">
+                <div id="payment-order-info" class="order-info-panel"></div>
+                <div class="form-group">
+                    <label for="payment-amount">Montant (FCFA) *</label>
+                    <input type="number" id="payment-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Méthode de paiement</label>
+                    <select id="payment-method">
+                        <option value="cash">Espèces</option>
+                        <option value="mobile_money">Mobile Money</option>
+                        <option value="bank_transfer">Virement bancaire</option>
+                        <option value="card">Carte</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="payment-notes">Notes</label>
+                    <textarea id="payment-notes" rows="2"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('payment')">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation -->
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Confirmation</h3>
+            <p id="confirm-message">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+            <div class="form-actions">
+                <button id="confirm-action" class="btn-primary">Confirmer</button>
+                <button class="btn-secondary" onclick="closeModal('confirm')">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale d'image en plein écran -->
+    <div id="image-modal" class="modal" style="display: none;">
+        <div class="modal-content image-modal-content">
+            <span class="close-modal close-image-modal" onclick="closeModal('image')">&times;</span>
+            <img id="full-size-image" src="" alt="Image en grand format">
+        </div>
+    </div>
+
+</div>
+        <div id="notification-container"></div>
+    </div>
+    
+    <footer style="text-align: center; padding: 20px; margin-top: 40px; border-top: 1px solid #eee;">
+        <p>
+            <a href="terms-of-service.html">Conditions d'Utilisation</a> | 
+            <a href="privacy-policy.html">Politique de Confidentialité</a> | 
+            <a href="legal-notice.html">Mentions Légales</a> |
+            <a href="javascript:void(0)" onclick="app.showCookieModal()">Gestion des Cookies</a>
+        </p>
+        <p>&copy; 2024 TailorPro. Tous droits réservés.</p>
+    </footer>
+    
+    <!-- Firebase SDK -->  
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <!-- === NOUVELLE ARCHITECTURE SIMPLIFIÉE === -->
+    
+    <!-- COUCHE 1: Services Firebase (version mise à jour) -->
+    <script src="js/firebase.js"></script>
+     <script src="js/firebase-services.js"></script>
+    
+    <!-- Debug (optionnel - à retirer en production) -->
+    <script src="js/ui/auth.js"></script>
+    <script src="js/debug-auth.js"></script>
+    
+    <!-- COUCHE 2: Nouveaux modules métier -->
+    <script src="js/measurements.js"></script>
+    <script src="js/billing.js"></script>
+    
+    <!-- COUCHE 3: Interface utilisateur -->
+    
+    <script src="js/ui/mfa.js"></script>
+    <script src="js/ui/render.js"></script>
+    <script src="js/ui/modals.js"></script>
+    <script src="js/pwa.js"></script>
+    
+    <!-- COUCHE 4: Application principale -->
+    <script src="js/app.js"></script>
+    
+    <!-- COUCHE 5: Initialisateur (DERNIER) -->
+    <script src="js/init.js"></script>
+    
+    <!-- Service Worker avec cache des nouvelles ressources -->
+    <script>
+        window.addEventListener('load', () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('✅ SW enregistré avec les nouvelles optimisations');
+                    })
+                    .catch(error => {
+                        console.error('❌ Erreur SW:', error);
+                    });
+            }
+        });
+    </script>
+
+    <!-- SCRIPT DE DÉBOGAGE NOUVELLE ARCHITECTURE -->
+    <script>
+    setTimeout(() => {
+        console.log('🔧 DEBUG: Vérification nouvelle architecture...');
+        
+        console.log('🔧 Éléments trouvés:', {
+            authModal: document.getElementById('auth-modal') ? 'OUI' : 'NON',
+            firebaseUIContainer: document.getElementById('firebaseui-auth-container') ? 'OUI' : 'NON',
+            appContainer: document.getElementById('app-container') ? 'OUI' : 'NON',
+            publicContent: document.getElementById('public-content') ? 'OUI' : 'NON',
+            premiumSections: document.getElementById('premium-sections') ? 'OUI' : 'NON',
+            cookieModal: document.getElementById('cookie-consent-modal') ? 'OUI' : 'NON',
+            hasApp: typeof window.app !== 'undefined',
+            hasFirebaseServices: typeof window.firebaseServices !== 'undefined'
+        });
+        
+        // Vérifier l'état initial
+        if (window.firebaseServices) {
+            const authState = window.firebaseServices.getCurrentAuthState();
+            console.log('🔧 État auth initial:', authState);
+        }
+    }, 1000);
+    
+// Tester la nouvelle architecture
+window.testFirebaseServices = async () => {
+    try {
+        await window.initializeFirebaseBusinessServices();
+        
+        // Tester chaque service
+        const services = window.firebaseBusinessServices.getAllServices();
+        console.log('✅ Services disponibles:', Object.keys(services));
+        
+        // Tester la compatibilité
+        console.log('✅ Compatibilité firebaseServices:', {
+            creations: !!window.firebaseServices.creations,
+            clients: !!window.firebaseServices.clients,
+            orders: !!window.firebaseServices.orders,
+            measurements: !!window.firebaseServices.measurements,
+            billing: !!window.firebaseServices.billing
+        });
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Test échoué:', error);
+        return false;
+    }
+};
+   
+    </script>
+    
+</body>
+</html>

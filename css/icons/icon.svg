@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Fond arrondi avec dégradé -->
+    <rect width="512" height="512" rx="96" fill="url(#bgGradient)"/>
+    
+    <!-- Forme de vêtement stylisée -->
+    <path d="M128 176 Q128 128 176 128 L336 128 Q384 128 384 176 L384 336 Q384 384 336 384 L176 384 Q128 384 128 336 Z" 
+          fill="white" fill-opacity="0.9"/>
+    
+    <!-- Lignes représentant un graphique -->
+    <path d="M160 200 L352 200 M160 240 L352 240 M160 280 L320 280 M160 320 L288 320" 
+          stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+    
+    <!-- Aiguille stylisée -->
+    <path d="M200 144 L200 96 M200 144 L240 120" 
+          stroke="white" stroke-width="8" stroke-linecap="round"/>
+</svg>
+
